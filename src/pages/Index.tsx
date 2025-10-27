@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import LoadingScreen from '@/components/LoadingScreen';
 
 interface Product {
   id: number;
@@ -50,6 +51,26 @@ const Index = () => {
     { id: 2, name: 'Михаил П.', rating: 5, text: 'ИИ-генератор букетов - просто находка! Помог подобрать идеальный подарок.' },
     { id: 3, name: 'Елена С.', rating: 5, text: 'Отличный сервис, удобная доставка. Буду заказывать еще!' },
   ];
+
+  useEffect(() => {
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    const elements = document.querySelectorAll('.scroll-reveal');
+    elements.forEach(el => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
 
   const addToCart = (product: Product) => {
     setCartItems(prev => {
@@ -158,7 +179,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-green-50">
+    <>
+      <LoadingScreen />
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-green-50">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-pink-100">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -190,9 +213,9 @@ const Index = () => {
                 </SheetHeader>
                 
                 <div className="mt-6 space-y-4">
-                  {cartItems.map(item => (
-                    <div key={item.id} className="flex items-center gap-3 border-b pb-3">
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                  {cartItems.map((item, index) => (
+                    <div key={item.id} className="flex items-center gap-3 border-b pb-3 animate-slide-in-right" style={{animationDelay: `${index * 0.05}s`}}>
+                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded hover:scale-110 transition-transform" />
                       <div className="flex-1">
                         <p className="font-medium text-sm">{item.name}</p>
                         <p className="text-sm text-muted-foreground">
@@ -214,7 +237,7 @@ const Index = () => {
                         Со скидкой 25%: {Math.round(calculateTotal() * 0.75)}₽
                       </div>
                       <Button 
-                        className="w-full mb-2" 
+                        className="w-full mb-2 hover:scale-105 transition-all duration-300 animate-glow" 
                         size="lg"
                         onClick={handleTelegramOrder}
                       >
@@ -340,7 +363,7 @@ const Index = () => {
 
       <section className="py-16 bg-white/50">
         <div className="container mx-auto px-4">
-          <h3 className="text-4xl font-bold text-center mb-12">Каталог</h3>
+          <h3 className="text-4xl font-bold text-center mb-12 scroll-reveal">Каталог</h3>
           
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5 mb-8">
@@ -357,7 +380,7 @@ const Index = () => {
                   {products
                     .filter(p => category === 'all' || p.category === category)
                     .map(product => (
-                      <Card key={product.id} className="overflow-hidden hover-scale">
+                      <Card key={product.id} className="overflow-hidden hover-lift scroll-reveal">
                         <div className="relative">
                           <img 
                             src={product.image} 
@@ -365,7 +388,7 @@ const Index = () => {
                             className="w-full h-64 object-cover"
                           />
                           {product.discount && (
-                            <Badge className="absolute top-3 right-3 bg-red-500">
+                            <Badge className="absolute top-3 right-3 bg-red-500 animate-bounce-subtle">
                               -{product.discount}%
                             </Badge>
                           )}
@@ -405,18 +428,18 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-purple-100 to-pink-100">
+      <section className="py-16 bg-gradient-to-r from-purple-100 to-pink-100 gradient-animate">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-8">
-              <Icon name="Sparkles" size={48} className="mx-auto mb-4 text-accent" />
+            <div className="text-center mb-8 scroll-reveal">
+              <Icon name="Sparkles" size={48} className="mx-auto mb-4 text-accent animate-bounce-subtle" />
               <h3 className="text-4xl font-bold mb-4">ИИ-генератор букетов</h3>
               <p className="text-lg text-muted-foreground">
                 Укажите бюджет, и мы подберем идеальный букет из роз и хризантем
               </p>
             </div>
             
-            <Card>
+            <Card className="scroll-reveal hover-lift">
               <CardHeader>
                 <CardTitle>Создайте свой букет</CardTitle>
                 <CardDescription>Минимальная сумма: 1000₽</CardDescription>
@@ -433,7 +456,7 @@ const Index = () => {
                       min="1000"
                     />
                   </div>
-                  <Button className="w-full" size="lg" onClick={generateBouquet}>
+                  <Button className="w-full hover:scale-105 transition-all duration-300 animate-glow" size="lg" onClick={generateBouquet}>
                     <Icon name="Wand2" size={20} className="mr-2" />
                     Сгенерировать букет
                   </Button>
@@ -446,14 +469,14 @@ const Index = () => {
 
       <section className="py-16 bg-white/50">
         <div className="container mx-auto px-4">
-          <h3 className="text-4xl font-bold text-center mb-4">🔥 Горящие скидки</h3>
-          <p className="text-center text-muted-foreground mb-12">Успейте купить со скидкой!</p>
+          <h3 className="text-4xl font-bold text-center mb-4 scroll-reveal">🔥 Горящие скидки</h3>
+          <p className="text-center text-muted-foreground mb-12 scroll-reveal">Успейте купить со скидкой!</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {products
               .filter(p => p.discount)
               .map(product => (
-                <Card key={product.id} className="overflow-hidden hover-scale border-2 border-red-200">
+                <Card key={product.id} className="overflow-hidden hover-lift scroll-reveal border-2 border-red-200 animate-slide-in-left">
                   <div className="flex gap-4">
                     <img 
                       src={product.image} 
@@ -461,7 +484,7 @@ const Index = () => {
                       className="w-32 h-32 object-cover"
                     />
                     <div className="flex-1 p-4">
-                      <Badge className="mb-2 bg-red-500">-{product.discount}%</Badge>
+                      <Badge className="mb-2 bg-red-500 animate-pulse-slow">-{product.discount}%</Badge>
                       <h4 className="font-bold text-lg mb-2">{product.name}</h4>
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-xl font-bold text-pink-600">
@@ -482,18 +505,18 @@ const Index = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gradient-to-r from-green-100 to-blue-100">
+      <section className="py-16 bg-gradient-to-r from-green-100 to-blue-100 gradient-animate">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-8">
-              <Icon name="Truck" size={48} className="mx-auto mb-4 text-green-600" />
+            <div className="text-center mb-8 scroll-reveal">
+              <Icon name="Truck" size={48} className="mx-auto mb-4 text-green-600 animate-bounce-subtle" />
               <h3 className="text-4xl font-bold mb-4">Доставка</h3>
               <Badge className="text-lg px-6 py-2 bg-green-500">
                 25% скидка на первый заказ!
               </Badge>
             </div>
             
-            <Card>
+            <Card className="scroll-reveal hover-lift">
               <CardHeader>
                 <CardTitle>Оформить доставку</CardTitle>
                 <CardDescription>Заполните форму или свяжитесь через Telegram</CardDescription>
@@ -578,11 +601,11 @@ const Index = () => {
 
       <section className="py-16 bg-white/50">
         <div className="container mx-auto px-4">
-          <h3 className="text-4xl font-bold text-center mb-12">Отзывы клиентов</h3>
+          <h3 className="text-4xl font-bold text-center mb-12 scroll-reveal">Отзывы клиентов</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {reviews.map(review => (
-              <Card key={review.id}>
+            {reviews.map((review, index) => (
+              <Card key={review.id} className="scroll-reveal hover-lift" style={{animationDelay: `${index * 0.1}s`}}>
                 <CardHeader>
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-10 h-10 rounded-full bg-pink-200 flex items-center justify-center">
@@ -651,6 +674,7 @@ const Index = () => {
         <Icon name="MessageCircle" size={28} />
       </a>
     </div>
+    </>
   );
 };
 
