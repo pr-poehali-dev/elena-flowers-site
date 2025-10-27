@@ -1,0 +1,38 @@
+{
+  "tests": [
+    {
+      "name": "Handle OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": "",
+      "bodyMatcher": "exact"
+    },
+    {
+      "name": "Send order to Telegram",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тест Заказ",
+        "phone": "+7 999 123 45 67",
+        "address": "Москва, ул. Тестовая, д. 1",
+        "date": "2024-12-25",
+        "time": "14:00",
+        "items": [
+          {
+            "name": "Букет роз",
+            "price": 3500,
+            "quantity": 1
+          }
+        ],
+        "total": 3500
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": "boolean",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
