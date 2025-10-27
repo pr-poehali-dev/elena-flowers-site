@@ -40,6 +40,9 @@ const Index = () => {
     { id: 4, name: 'Керамический горшок', price: 890, category: 'pots', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/88f0082d-c9ab-4167-986b-a34110c93177.jpg' },
     { id: 5, name: 'Тюльпаны "Весна"', price: 1800, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/2c5fdcc6-809c-42a4-b7a7-70c1de41e10a.jpg', discount: 30 },
     { id: 6, name: 'Пионы премиум', price: 4500, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/8357e640-7f9d-4068-b85c-914b431246ed.jpg', discount: 20 },
+    { id: 7, name: 'Свадебный букет', price: 8500, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/2d20822b-04d5-42b1-aee7-9d9d6578df9c.jpg' },
+    { id: 8, name: 'Весенний микс', price: 2500, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/a80fc7ba-5f6c-407c-8e0f-ae409b720eba.jpg' },
+    { id: 9, name: 'Романтика', price: 4500, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/78b4bb1e-ee2b-4951-9d97-dfb88c75c1d2.jpg' },
   ];
 
   const reviews = [
@@ -273,8 +276,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardFooter className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-pink-600">от 8500₽</span>
-                <Button>Заказать</Button>
+                <span className="text-2xl font-bold text-pink-600">8500₽</span>
+                <Button onClick={() => addToCart(products[6])}>
+                  <Icon name="ShoppingCart" size={18} className="mr-2" />
+                  Заказать
+                </Button>
               </CardFooter>
             </Card>
 
@@ -294,8 +300,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardFooter className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-pink-600">от 2500₽</span>
-                <Button>Заказать</Button>
+                <span className="text-2xl font-bold text-pink-600">2500₽</span>
+                <Button onClick={() => addToCart(products[7])}>
+                  <Icon name="ShoppingCart" size={18} className="mr-2" />
+                  Заказать
+                </Button>
               </CardFooter>
             </Card>
 
@@ -315,8 +324,11 @@ const Index = () => {
                 </CardDescription>
               </CardHeader>
               <CardFooter className="flex justify-between items-center">
-                <span className="text-2xl font-bold text-pink-600">от 4500₽</span>
-                <Button>Заказать</Button>
+                <span className="text-2xl font-bold text-pink-600">4500₽</span>
+                <Button onClick={() => addToCart(products[8])}>
+                  <Icon name="ShoppingCart" size={18} className="mr-2" />
+                  Заказать
+                </Button>
               </CardFooter>
             </Card>
           </div>
