@@ -249,6 +249,80 @@ const Index = () => {
         </div>
       </section>
 
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-bold mb-4">🌟 Популярные букеты</h3>
+            <p className="text-lg text-muted-foreground">Композиции, которые выбирают чаще всего</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <Card className="overflow-hidden hover-scale group">
+              <div className="relative overflow-hidden">
+                <img 
+                  src="https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/2d20822b-04d5-42b1-aee7-9d9d6578df9c.jpg"
+                  alt="Свадебный букет"
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl">Свадебный букет</CardTitle>
+                <CardDescription className="text-lg">
+                  Белые розы и пионы для торжества
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="flex justify-between items-center">
+                <span className="text-2xl font-bold text-pink-600">от 8500₽</span>
+                <Button>Заказать</Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="overflow-hidden hover-scale group">
+              <div className="relative overflow-hidden">
+                <img 
+                  src="https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/a80fc7ba-5f6c-407c-8e0f-ae409b720eba.jpg"
+                  alt="Весенний микс"
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl">Весенний микс</CardTitle>
+                <CardDescription className="text-lg">
+                  Яркие тюльпаны и сезонные цветы
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="flex justify-between items-center">
+                <span className="text-2xl font-bold text-pink-600">от 2500₽</span>
+                <Button>Заказать</Button>
+              </CardFooter>
+            </Card>
+
+            <Card className="overflow-hidden hover-scale group">
+              <div className="relative overflow-hidden">
+                <img 
+                  src="https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/78b4bb1e-ee2b-4951-9d97-dfb88c75c1d2.jpg"
+                  alt="Романтика"
+                  className="w-full h-80 object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl">Романтика</CardTitle>
+                <CardDescription className="text-lg">
+                  Красные розы премиум класса
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="flex justify-between items-center">
+                <span className="text-2xl font-bold text-pink-600">от 4500₽</span>
+                <Button>Заказать</Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 bg-white/50">
         <div className="container mx-auto px-4">
           <h3 className="text-4xl font-bold text-center mb-12">Каталог</h3>
