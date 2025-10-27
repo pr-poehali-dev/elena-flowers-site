@@ -61,7 +61,10 @@ const Index = () => {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-    toast.success('Товар добавлен в корзину');
+    toast.success('Товар добавлен в корзину 🎉', {
+      duration: 2000,
+      icon: '🛍️'
+    });
   };
 
   const generateBouquet = () => {
@@ -160,7 +163,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="text-4xl">🌸</div>
+              <div className="text-4xl animate-float">🌸</div>
               <div>
                 <h1 className="text-3xl font-bold text-pink-600">Elena's Flowers</h1>
                 <p className="text-sm text-muted-foreground">Доставка цветов и товаров для флористики</p>
@@ -169,10 +172,10 @@ const Index = () => {
             
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="lg" className="relative">
+                <Button variant="outline" size="lg" className="relative hover:scale-110 transition-transform">
                   <Icon name="ShoppingCart" size={20} />
                   {cartItems.length > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center">
+                    <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center animate-scale-in">
                       {cartItems.length}
                     </Badge>
                   )}
@@ -229,22 +232,22 @@ const Index = () => {
 
       <section className="relative py-20 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center animate-fade-in">
-            <Badge className="mb-4 text-lg px-6 py-2 bg-accent">
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-4 text-lg px-6 py-2 bg-accent animate-fade-in">
               🎉 Скидка 25% на первую доставку!
             </Badge>
-            <h2 className="text-6xl font-bold mb-6 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-6xl font-bold mb-6 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent animate-fade-in" style={{animationDelay: '0.1s'}}>
               Свежие цветы с доставкой
             </h2>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-xl text-muted-foreground mb-8 animate-fade-in" style={{animationDelay: '0.2s'}}>
               Создайте уникальный букет с помощью ИИ или выберите из готовых композиций
             </p>
-            <div className="flex gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8">
+            <div className="flex gap-4 justify-center animate-fade-in" style={{animationDelay: '0.3s'}}>
+              <Button size="lg" className="text-lg px-8 hover:scale-105 transition-all duration-300 hover:shadow-lg">
                 <Icon name="Sparkles" size={20} className="mr-2" />
                 ИИ-генератор букетов
               </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8">
+              <Button size="lg" variant="outline" className="text-lg px-8 hover:scale-105 transition-all duration-300 hover:shadow-lg">
                 Каталог
               </Button>
             </div>
@@ -254,7 +257,7 @@ const Index = () => {
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 animate-slide-up">
             <h3 className="text-4xl font-bold mb-4">🌟 Популярные букеты</h3>
             <p className="text-lg text-muted-foreground">Композиции, которые выбирают чаще всего</p>
           </div>
@@ -284,7 +287,7 @@ const Index = () => {
               </CardFooter>
             </Card>
 
-            <Card className="overflow-hidden hover-scale group">
+            <Card className="overflow-hidden hover-scale group animate-slide-up" style={{animationDelay: '0.2s'}}>
               <div className="relative overflow-hidden">
                 <img 
                   src="https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/a80fc7ba-5f6c-407c-8e0f-ae409b720eba.jpg"
@@ -308,7 +311,7 @@ const Index = () => {
               </CardFooter>
             </Card>
 
-            <Card className="overflow-hidden hover-scale group">
+            <Card className="overflow-hidden hover-scale group animate-slide-up" style={{animationDelay: '0.3s'}}>
               <div className="relative overflow-hidden">
                 <img 
                   src="https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/78b4bb1e-ee2b-4951-9d97-dfb88c75c1d2.jpg"
@@ -642,7 +645,7 @@ const Index = () => {
         href="https://t.me/pnkma"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-transform duration-300 hover:shadow-xl"
+        className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-all duration-300 hover:shadow-2xl animate-pulse-slow"
         aria-label="Связаться через Telegram"
       >
         <Icon name="MessageCircle" size={28} />
