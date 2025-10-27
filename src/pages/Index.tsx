@@ -93,10 +93,62 @@ const Index = () => {
     }, 0);
   };
 
-  const handleSubmitDelivery = (e: React.FormEvent) => {
+  const handleSubmitDelivery = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Заказ оформлен! Скидка 25% на первую доставку применена.');
-    setDeliveryForm({ name: '', phone: '', address: '', date: '', time: '' });
+    
+    if (cartItems.length === 0) {
+      toast.error('Корзина пуста! Добавьте товары перед оформлением.');
+      return;
+    }
+
+    const orderData = {
+      name: deliveryForm.name,
+      phone: deliveryForm.phone,
+      address: deliveryForm.address,
+      date: deliveryForm.date,
+      time: deliveryForm.time,
+      items: cartItems,
+      total: calculateTotal()
+    };
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/a0cd401c-7c45-4fc7-9713-034f895ea620', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast.success('Заказ отправлен в Telegram! Скидка 25% применена.');
+        setDeliveryForm({ name: '', phone: '', address: '', date: '', time: '' });
+        setCartItems([]);
+      } else {
+        toast.error(result.message || 'Ошибка при отправке заказа');
+      }
+    } catch (error) {
+      toast.error('Не удалось отправить заказ. Попробуйте позже.');
+    }
+  };
+
+  const handleTelegramOrder = () => {
+    if (cartItems.length === 0) {
+      toast.error('Корзина пуста! Добавьте товары перед заказом.');
+      return;
+    }
+
+    const itemsList = cartItems
+      .map(item => `${item.name} x${item.quantity}`)
+      .join(', ');
+    
+    const total = Math.round(calculateTotal() * 0.75);
+    const message = `Здравствуйте! Хочу заказать: ${itemsList}. Сумма со скидкой 25%: ${total}₽`;
+    
+    const telegramUrl = `https://t.me/pnkma?text=${encodeURIComponent(message)}`;
+    window.open(telegramUrl, '_blank');
   };
 
   return (
@@ -148,12 +200,20 @@ const Index = () => {
                   
                   {cartItems.length > 0 && (
                     <div className="pt-4 border-t">
-                      <div className="flex justify-between text-lg font-bold mb-4">
+                      <div className="flex justify-between text-lg font-bold mb-2">
                         <span>Итого:</span>
                         <span>{Math.round(calculateTotal())}₽</span>
                       </div>
-                      <Button className="w-full" size="lg">
-                        Оформить заказ
+                      <div className="text-sm text-muted-foreground mb-4">
+                        Со скидкой 25%: {Math.round(calculateTotal() * 0.75)}₽
+                      </div>
+                      <Button 
+                        className="w-full mb-2" 
+                        size="lg"
+                        onClick={handleTelegramOrder}
+                      >
+                        <Icon name="MessageCircle" size={20} className="mr-2" />
+                        Заказать через Telegram
                       </Button>
                     </div>
                   )}
@@ -409,7 +469,13 @@ const Index = () => {
                       <Icon name="Send" size={20} className="mr-2" />
                       Оформить
                     </Button>
-                    <Button type="button" variant="outline" size="lg" className="flex-1">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="lg" 
+                      className="flex-1"
+                      onClick={handleTelegramOrder}
+                    >
                       <Icon name="MessageCircle" size={20} className="mr-2" />
                       Telegram
                     </Button>
