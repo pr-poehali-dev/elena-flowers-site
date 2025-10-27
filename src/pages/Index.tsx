@@ -1,12 +1,490 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Icon from '@/components/ui/icon';
+import { toast } from 'sonner';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  category: string;
+  image: string;
+  discount?: number;
+}
+
+interface CartItem extends Product {
+  quantity: number;
+}
 
 const Index = () => {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [aiBudget, setAiBudget] = useState('');
+  const [deliveryForm, setDeliveryForm] = useState({
+    name: '',
+    phone: '',
+    address: '',
+    date: '',
+    time: ''
+  });
+
+  const products: Product[] = [
+    { id: 1, name: 'Букет роз "Нежность"', price: 3500, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/8357e640-7f9d-4068-b85c-914b431246ed.jpg' },
+    { id: 2, name: 'Хризантемы микс', price: 2200, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/2c5fdcc6-809c-42a4-b7a7-70c1de41e10a.jpg' },
+    { id: 3, name: 'Грунт универсальный 10л', price: 450, category: 'soil', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/88f0082d-c9ab-4167-986b-a34110c93177.jpg' },
+    { id: 4, name: 'Керамический горшок', price: 890, category: 'pots', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/88f0082d-c9ab-4167-986b-a34110c93177.jpg' },
+    { id: 5, name: 'Тюльпаны "Весна"', price: 1800, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/2c5fdcc6-809c-42a4-b7a7-70c1de41e10a.jpg', discount: 30 },
+    { id: 6, name: 'Пионы премиум', price: 4500, category: 'flowers', image: 'https://cdn.poehali.dev/projects/57525442-6faa-4c81-bc25-dfbf0d7c0151/files/8357e640-7f9d-4068-b85c-914b431246ed.jpg', discount: 20 },
+  ];
+
+  const reviews = [
+    { id: 1, name: 'Анна К.', rating: 5, text: 'Прекрасные цветы! Доставили вовремя, букет свежий и красивый. Спасибо!' },
+    { id: 2, name: 'Михаил П.', rating: 5, text: 'ИИ-генератор букетов - просто находка! Помог подобрать идеальный подарок.' },
+    { id: 3, name: 'Елена С.', rating: 5, text: 'Отличный сервис, удобная доставка. Буду заказывать еще!' },
+  ];
+
+  const addToCart = (product: Product) => {
+    setCartItems(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+    toast.success('Товар добавлен в корзину');
+  };
+
+  const generateBouquet = () => {
+    if (!aiBudget || parseFloat(aiBudget) < 1000) {
+      toast.error('Минимальная сумма для генерации букета - 1000₽');
+      return;
+    }
+    
+    const budget = parseFloat(aiBudget);
+    const composition = [];
+    
+    if (budget >= 3000) {
+      composition.push('15 роз разных оттенков');
+    }
+    if (budget >= 2000) {
+      composition.push('7 хризантем');
+    }
+    if (budget >= 1500) {
+      composition.push('Зелень и декор');
+    }
+    
+    toast.success(
+      `Букет сгенерирован! Состав: ${composition.join(', ')}. Стоимость: ${budget}₽`,
+      { duration: 5000 }
+    );
+  };
+
+  const calculateTotal = () => {
+    return cartItems.reduce((sum, item) => {
+      const price = item.discount ? item.price * (1 - item.discount / 100) : item.price;
+      return sum + price * item.quantity;
+    }, 0);
+  };
+
+  const handleSubmitDelivery = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast.success('Заказ оформлен! Скидка 25% на первую доставку применена.');
+    setDeliveryForm({ name: '', phone: '', address: '', date: '', time: '' });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4 color-black text-black">Добро пожаловать!</h1>
-        <p className="text-xl text-gray-600">тут будет отображаться ваш проект</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-green-50">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-pink-100">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="text-4xl">🌸</div>
+              <div>
+                <h1 className="text-3xl font-bold text-pink-600">Elena's Flowers</h1>
+                <p className="text-sm text-muted-foreground">Доставка цветов и товаров для флористики</p>
+              </div>
+            </div>
+            
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="lg" className="relative">
+                  <Icon name="ShoppingCart" size={20} />
+                  {cartItems.length > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center">
+                      {cartItems.length}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Корзина</SheetTitle>
+                  <SheetDescription>
+                    {cartItems.length === 0 ? 'Корзина пуста' : `Товаров: ${cartItems.length}`}
+                  </SheetDescription>
+                </SheetHeader>
+                
+                <div className="mt-6 space-y-4">
+                  {cartItems.map(item => (
+                    <div key={item.id} className="flex items-center gap-3 border-b pb-3">
+                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{item.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {item.quantity} × {item.discount ? 
+                            <><span className="line-through">{item.price}₽</span> {Math.round(item.price * (1 - item.discount / 100))}₽</> 
+                            : `${item.price}₽`}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {cartItems.length > 0 && (
+                    <div className="pt-4 border-t">
+                      <div className="flex justify-between text-lg font-bold mb-4">
+                        <span>Итого:</span>
+                        <span>{Math.round(calculateTotal())}₽</span>
+                      </div>
+                      <Button className="w-full" size="lg">
+                        Оформить заказ
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </header>
+
+      <section className="relative py-20 overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+            <Badge className="mb-4 text-lg px-6 py-2 bg-accent">
+              🎉 Скидка 25% на первую доставку!
+            </Badge>
+            <h2 className="text-6xl font-bold mb-6 bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Свежие цветы с доставкой
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8">
+              Создайте уникальный букет с помощью ИИ или выберите из готовых композиций
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button size="lg" className="text-lg px-8">
+                <Icon name="Sparkles" size={20} className="mr-2" />
+                ИИ-генератор букетов
+              </Button>
+              <Button size="lg" variant="outline" className="text-lg px-8">
+                Каталог
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-white/50">
+        <div className="container mx-auto px-4">
+          <h3 className="text-4xl font-bold text-center mb-12">Каталог</h3>
+          
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5 mb-8">
+              <TabsTrigger value="all">Все</TabsTrigger>
+              <TabsTrigger value="flowers">Цветы</TabsTrigger>
+              <TabsTrigger value="soil">Грунты</TabsTrigger>
+              <TabsTrigger value="pots">Горшки</TabsTrigger>
+              <TabsTrigger value="plants">Растения</TabsTrigger>
+            </TabsList>
+            
+            {['all', 'flowers', 'soil', 'pots', 'plants'].map(category => (
+              <TabsContent key={category} value={category} className="mt-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {products
+                    .filter(p => category === 'all' || p.category === category)
+                    .map(product => (
+                      <Card key={product.id} className="overflow-hidden hover-scale">
+                        <div className="relative">
+                          <img 
+                            src={product.image} 
+                            alt={product.name}
+                            className="w-full h-64 object-cover"
+                          />
+                          {product.discount && (
+                            <Badge className="absolute top-3 right-3 bg-red-500">
+                              -{product.discount}%
+                            </Badge>
+                          )}
+                        </div>
+                        <CardHeader>
+                          <CardTitle className="text-xl">{product.name}</CardTitle>
+                          <CardDescription>
+                            {product.discount ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-2xl font-bold text-pink-600">
+                                  {Math.round(product.price * (1 - product.discount / 100))}₽
+                                </span>
+                                <span className="text-lg line-through text-muted-foreground">
+                                  {product.price}₽
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-2xl font-bold text-pink-600">{product.price}₽</span>
+                            )}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardFooter>
+                          <Button 
+                            className="w-full" 
+                            onClick={() => addToCart(product)}
+                          >
+                            <Icon name="ShoppingCart" size={18} className="mr-2" />
+                            В корзину
+                          </Button>
+                        </CardFooter>
+                      </Card>
+                    ))}
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </section>
+
+      <section className="py-16 bg-gradient-to-r from-purple-100 to-pink-100">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <Icon name="Sparkles" size={48} className="mx-auto mb-4 text-accent" />
+              <h3 className="text-4xl font-bold mb-4">ИИ-генератор букетов</h3>
+              <p className="text-lg text-muted-foreground">
+                Укажите бюджет, и мы подберем идеальный букет из роз и хризантем
+              </p>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Создайте свой букет</CardTitle>
+                <CardDescription>Минимальная сумма: 1000₽</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Ваш бюджет (₽)</label>
+                    <Input 
+                      type="number" 
+                      placeholder="Например, 3000"
+                      value={aiBudget}
+                      onChange={(e) => setAiBudget(e.target.value)}
+                      min="1000"
+                    />
+                  </div>
+                  <Button className="w-full" size="lg" onClick={generateBouquet}>
+                    <Icon name="Wand2" size={20} className="mr-2" />
+                    Сгенерировать букет
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-white/50">
+        <div className="container mx-auto px-4">
+          <h3 className="text-4xl font-bold text-center mb-4">🔥 Горящие скидки</h3>
+          <p className="text-center text-muted-foreground mb-12">Успейте купить со скидкой!</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {products
+              .filter(p => p.discount)
+              .map(product => (
+                <Card key={product.id} className="overflow-hidden hover-scale border-2 border-red-200">
+                  <div className="flex gap-4">
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      className="w-32 h-32 object-cover"
+                    />
+                    <div className="flex-1 p-4">
+                      <Badge className="mb-2 bg-red-500">-{product.discount}%</Badge>
+                      <h4 className="font-bold text-lg mb-2">{product.name}</h4>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-xl font-bold text-pink-600">
+                          {Math.round(product.price * (1 - product.discount! / 100))}₽
+                        </span>
+                        <span className="line-through text-muted-foreground">
+                          {product.price}₽
+                        </span>
+                      </div>
+                      <Button size="sm" onClick={() => addToCart(product)}>
+                        Купить
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-gradient-to-r from-green-100 to-blue-100">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-8">
+              <Icon name="Truck" size={48} className="mx-auto mb-4 text-green-600" />
+              <h3 className="text-4xl font-bold mb-4">Доставка</h3>
+              <Badge className="text-lg px-6 py-2 bg-green-500">
+                25% скидка на первый заказ!
+              </Badge>
+            </div>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Оформить доставку</CardTitle>
+                <CardDescription>Заполните форму или свяжитесь через Telegram</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmitDelivery} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">ФИО</label>
+                    <Input 
+                      required
+                      placeholder="Иванов Иван Иванович"
+                      value={deliveryForm.name}
+                      onChange={(e) => setDeliveryForm({...deliveryForm, name: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Телефон</label>
+                    <Input 
+                      required
+                      type="tel"
+                      placeholder="+7 (999) 123-45-67"
+                      value={deliveryForm.phone}
+                      onChange={(e) => setDeliveryForm({...deliveryForm, phone: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Адрес доставки</label>
+                    <Textarea 
+                      required
+                      placeholder="Город, улица, дом, квартира"
+                      value={deliveryForm.address}
+                      onChange={(e) => setDeliveryForm({...deliveryForm, address: e.target.value})}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Дата</label>
+                      <Input 
+                        required
+                        type="date"
+                        value={deliveryForm.date}
+                        onChange={(e) => setDeliveryForm({...deliveryForm, date: e.target.value})}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Время</label>
+                      <Input 
+                        required
+                        type="time"
+                        value={deliveryForm.time}
+                        onChange={(e) => setDeliveryForm({...deliveryForm, time: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3">
+                    <Button type="submit" className="flex-1" size="lg">
+                      <Icon name="Send" size={20} className="mr-2" />
+                      Оформить
+                    </Button>
+                    <Button type="button" variant="outline" size="lg" className="flex-1">
+                      <Icon name="MessageCircle" size={20} className="mr-2" />
+                      Telegram
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-white/50">
+        <div className="container mx-auto px-4">
+          <h3 className="text-4xl font-bold text-center mb-12">Отзывы клиентов</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {reviews.map(review => (
+              <Card key={review.id}>
+                <CardHeader>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-10 h-10 rounded-full bg-pink-200 flex items-center justify-center">
+                      <Icon name="User" size={20} />
+                    </div>
+                    <CardTitle className="text-lg">{review.name}</CardTitle>
+                  </div>
+                  <div className="flex gap-1">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Icon key={i} name="Star" size={16} className="text-yellow-500 fill-yellow-500" />
+                    ))}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{review.text}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="bg-gradient-to-r from-pink-600 to-purple-600 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h4 className="text-2xl font-bold mb-4">Elena's Flowers</h4>
+              <p className="text-pink-100">Свежие цветы с любовью</p>
+            </div>
+            
+            <div>
+              <h5 className="font-bold mb-3">Контакты</h5>
+              <div className="space-y-2 text-pink-100">
+                <p className="flex items-center gap-2">
+                  <Icon name="Phone" size={16} />
+                  +7 (999) 123-45-67
+                </p>
+                <p className="flex items-center gap-2">
+                  <Icon name="Mail" size={16} />
+                  info@elenasflowers.ru
+                </p>
+              </div>
+            </div>
+            
+            <div>
+              <h5 className="font-bold mb-3">О нас</h5>
+              <p className="text-pink-100">
+                Мы создаем красоту уже более 10 лет. Доставка по всему городу.
+              </p>
+            </div>
+          </div>
+          
+          <div className="border-t border-pink-400 mt-8 pt-8 text-center text-pink-100">
+            <p>© 2024 Elena's Flowers. Все права защищены.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
