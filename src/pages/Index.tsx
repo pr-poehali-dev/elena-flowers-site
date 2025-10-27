@@ -28,6 +28,7 @@ const Index = () => {
   const [aiBudget, setAiBudget] = useState('');
   const [scrollY, setScrollY] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [deliveryForm, setDeliveryForm] = useState({
     name: '',
     phone: '',
@@ -219,17 +220,22 @@ const Index = () => {
               </div>
             </div>
             
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="lg" className="relative hover:scale-110 transition-transform">
-                  <Icon name="ShoppingCart" size={20} />
-                  {cartItems.length > 0 && (
-                    <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center animate-scale-in">
-                      {cartItems.length}
-                    </Badge>
-                  )}
-                </Button>
-              </SheetTrigger>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="lg" className="hover:scale-110 transition-transform" onClick={() => toast.info('Личный кабинет в разработке')}>
+                <Icon name="User" size={24} />
+              </Button>
+              
+                <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="lg" className="relative hover:scale-110 transition-transform">
+                    <Icon name="ShoppingCart" size={20} />
+                    {cartItems.length > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 flex items-center justify-center animate-scale-in">
+                        {cartItems.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
                   <SheetTitle>Корзина</SheetTitle>
@@ -274,7 +280,8 @@ const Index = () => {
                   )}
                 </div>
               </SheetContent>
-            </Sheet>
+              </Sheet>
+            </div>
           </div>
         </div>
       </header>
@@ -401,7 +408,20 @@ const Index = () => {
 
       <section className="py-16 bg-white/50">
         <div className="container mx-auto px-4">
-          <h3 className="text-4xl font-bold text-center mb-12 scroll-reveal">Каталог</h3>
+          <h3 className="text-4xl font-bold text-center mb-8 scroll-reveal">Каталог</h3>
+          
+          <div className="max-w-md mx-auto mb-8">
+            <div className="relative">
+              <Icon name="Search" size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+              <Input 
+                type="text" 
+                placeholder="Поиск товаров..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-lg"
+              />
+            </div>
+          </div>
           
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-5 mb-8">
@@ -409,14 +429,15 @@ const Index = () => {
               <TabsTrigger value="flowers">Цветы</TabsTrigger>
               <TabsTrigger value="soil">Грунты</TabsTrigger>
               <TabsTrigger value="pots">Горшки</TabsTrigger>
-              <TabsTrigger value="plants">Растения</TabsTrigger>
+              <TabsTrigger value="accessories">Аксессуары</TabsTrigger>
             </TabsList>
             
-            {['all', 'flowers', 'soil', 'pots', 'plants'].map(category => (
+            {['all', 'flowers', 'soil', 'pots', 'accessories'].map(category => (
               <TabsContent key={category} value={category} className="mt-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {products
                     .filter(p => category === 'all' || p.category === category)
+                    .filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
                     .map(product => (
                       <Card key={product.id} className="overflow-hidden hover-lift scroll-reveal">
                         <div className="relative">

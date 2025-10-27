@@ -59,18 +59,45 @@ const ParallaxBackground = () => {
       ctx.rotate(rotation);
       ctx.globalAlpha = opacity;
 
+      const petalPoints = 5;
       ctx.beginPath();
-      ctx.ellipse(0, 0, size, size * 1.5, 0, 0, Math.PI * 2);
+      
+      for (let i = 0; i < petalPoints; i++) {
+        const angle = (i * Math.PI * 2) / petalPoints;
+        const px = Math.cos(angle) * size;
+        const py = Math.sin(angle) * size * 1.3;
+        
+        const controlAngle = angle + Math.PI / petalPoints;
+        const cpx = Math.cos(controlAngle) * size * 0.3;
+        const cpy = Math.sin(controlAngle) * size * 0.5;
+        
+        if (i === 0) {
+          ctx.moveTo(px, py);
+        } else {
+          ctx.quadraticCurveTo(cpx, cpy, px, py);
+        }
+      }
+      
+      ctx.closePath();
+      
       const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
-      gradient.addColorStop(0, 'rgba(255, 182, 193, 1)');
-      gradient.addColorStop(0.5, 'rgba(255, 105, 180, 0.8)');
-      gradient.addColorStop(1, 'rgba(255, 192, 203, 0.6)');
+      gradient.addColorStop(0, 'rgba(255, 240, 245, 1)');
+      gradient.addColorStop(0.3, 'rgba(255, 182, 193, 0.9)');
+      gradient.addColorStop(0.6, 'rgba(255, 105, 180, 0.7)');
+      gradient.addColorStop(1, 'rgba(219, 112, 147, 0.4)');
       ctx.fillStyle = gradient;
       ctx.fill();
 
+      ctx.strokeStyle = 'rgba(255, 105, 180, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
       ctx.beginPath();
-      ctx.ellipse(0, 0, size * 0.3, size * 0.5, 0, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.ellipse(0, 0, size * 0.25, size * 0.35, 0, 0, Math.PI * 2);
+      const centerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size * 0.25);
+      centerGradient.addColorStop(0, 'rgba(255, 255, 200, 0.9)');
+      centerGradient.addColorStop(1, 'rgba(255, 192, 203, 0.6)');
+      ctx.fillStyle = centerGradient;
       ctx.fill();
 
       ctx.restore();
