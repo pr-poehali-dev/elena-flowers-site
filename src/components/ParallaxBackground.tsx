@@ -13,23 +13,27 @@ const ParallaxBackground = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const particles: Array<{
+    const petals: Array<{
       x: number;
       y: number;
       size: number;
       speedX: number;
       speedY: number;
+      rotation: number;
+      rotationSpeed: number;
       opacity: number;
     }> = [];
 
-    for (let i = 0; i < 50; i++) {
-      particles.push({
+    for (let i = 0; i < 30; i++) {
+      petals.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 3 + 1,
-        speedX: (Math.random() - 0.5) * 0.5,
-        speedY: (Math.random() - 0.5) * 0.5,
-        opacity: Math.random() * 0.5 + 0.2
+        size: Math.random() * 15 + 10,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: Math.random() * 0.5 + 0.2,
+        rotation: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.02,
+        opacity: Math.random() * 0.4 + 0.3
       });
     }
 
@@ -49,56 +53,54 @@ const ParallaxBackground = () => {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('scroll', handleScroll);
 
+    const drawPetal = (x: number, y: number, size: number, rotation: number, opacity: number) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.globalAlpha = opacity;
+
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size, size * 1.5, 0, 0, Math.PI * 2);
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
+      gradient.addColorStop(0, 'rgba(255, 182, 193, 1)');
+      gradient.addColorStop(0.5, 'rgba(255, 105, 180, 0.8)');
+      gradient.addColorStop(1, 'rgba(255, 192, 203, 0.6)');
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.ellipse(0, 0, size * 0.3, size * 0.5, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fill();
+
+      ctx.restore();
+    };
+
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, 'rgba(255, 222, 226, 0.3)');
-      gradient.addColorStop(0.5, 'rgba(242, 252, 226, 0.2)');
-      gradient.addColorStop(1, 'rgba(214, 188, 250, 0.3)');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      petals.forEach((petal) => {
+        petal.x += petal.speedX;
+        petal.y += petal.speedY;
+        petal.rotation += petal.rotationSpeed;
 
-      particles.forEach((particle, index) => {
-        particle.x += particle.speedX;
-        particle.y += particle.speedY - scrollY * 0.0005;
-
-        const dx = mouseX - particle.x;
-        const dy = mouseY - particle.y;
+        const dx = mouseX - petal.x;
+        const dy = mouseY - petal.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance < 100) {
-          particle.x -= dx * 0.01;
-          particle.y -= dy * 0.01;
+        if (distance < 150) {
+          petal.x -= dx * 0.005;
+          petal.y -= dy * 0.005;
         }
 
-        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+        if (petal.x < -50) petal.x = canvas.width + 50;
+        if (petal.x > canvas.width + 50) petal.x = -50;
+        if (petal.y > canvas.height + 50) {
+          petal.y = -50;
+          petal.x = Math.random() * canvas.width;
+        }
 
-        particle.x = Math.max(0, Math.min(canvas.width, particle.x));
-        particle.y = Math.max(0, Math.min(canvas.height, particle.y));
-
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(155, 135, 245, ${particle.opacity})`;
-        ctx.fill();
-
-        particles.forEach((otherParticle, otherIndex) => {
-          if (index !== otherIndex) {
-            const dx = particle.x - otherParticle.x;
-            const dy = particle.y - otherParticle.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < 150) {
-              ctx.beginPath();
-              ctx.strokeStyle = `rgba(155, 135, 245, ${0.1 * (1 - distance / 150)})`;
-              ctx.lineWidth = 1;
-              ctx.moveTo(particle.x, particle.y);
-              ctx.lineTo(otherParticle.x, otherParticle.y);
-              ctx.stroke();
-            }
-          }
-        });
+        drawPetal(petal.x, petal.y, petal.size, petal.rotation, petal.opacity);
       });
 
       requestAnimationFrame(animate);
