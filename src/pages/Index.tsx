@@ -9,6 +9,18 @@ import Icon from '@/components/ui/icon';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import ParallaxBackground from '@/components/ParallaxBackground';
+import BouquetViewer3D from '@/components/BouquetViewer3D';
+import TelegramAuth from '@/components/TelegramAuth';
+import UserProfile from '@/components/UserProfile';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+
+interface TelegramUser {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  photo_url?: string;
+}
 
 interface Product {
   id: number;
@@ -29,6 +41,11 @@ const Index = () => {
   const [scrollY, setScrollY] = useState(0);
   const heroRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [user, setUser] = useState<TelegramUser | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [show3DViewer, setShow3DViewer] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
   const [deliveryForm, setDeliveryForm] = useState({
     name: '',
     phone: '',
@@ -221,9 +238,34 @@ const Index = () => {
             </div>
             
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="lg" className="hover:scale-110 transition-transform" onClick={() => toast.info('Личный кабинет в разработке')}>
-                <Icon name="User" size={24} />
-              </Button>
+              {user ? (
+                <Button 
+                  variant="ghost" 
+                  size="lg" 
+                  className="hover:scale-110 transition-transform" 
+                  onClick={() => setShowProfile(true)}
+                >
+                  <div className="flex items-center gap-2">
+                    {user.photo_url ? (
+                      <img src={user.photo_url} alt={user.first_name} className="w-8 h-8 rounded-full" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold">
+                        {user.first_name[0]}
+                      </div>
+                    )}
+                    <span className="hidden md:inline">{user.first_name}</span>
+                  </div>
+                </Button>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="lg" 
+                  className="hover:scale-110 transition-transform" 
+                  onClick={() => setShowAuth(true)}
+                >
+                  <Icon name="User" size={24} />
+                </Button>
+              )}
               
                 <Sheet>
                 <SheetTrigger asChild>
@@ -310,14 +352,36 @@ const Index = () => {
             <p className="text-xl text-muted-foreground mb-8 animate-fade-in" style={{animationDelay: '0.2s'}}>
               Создайте уникальный букет с помощью ИИ или выберите из готовых композиций
             </p>
-            <div className="flex gap-4 justify-center animate-fade-in" style={{animationDelay: '0.3s'}}>
-              <Button size="lg" className="text-lg px-8 hover:scale-105 transition-all duration-300 hover:shadow-lg">
-                <Icon name="Sparkles" size={20} className="mr-2" />
-                ИИ-генератор букетов
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8 hover:scale-105 transition-all duration-300 hover:shadow-lg">
-                Каталог
-              </Button>
+            <div className="space-y-4">
+              <div className="flex gap-4 justify-center mb-6">
+                <Input 
+                  type="text"
+                  placeholder="Опишите букет мечты... (например: романтичный букет из роз)"
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  className="max-w-2xl h-12 text-lg"
+                />
+              </div>
+              <div className="flex gap-4 justify-center animate-fade-in" style={{animationDelay: '0.3s'}}>
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8 hover:scale-105 transition-all duration-300 hover:shadow-lg"
+                  onClick={() => {
+                    if (!aiPrompt) {
+                      toast.error('Опишите желаемый букет');
+                      return;
+                    }
+                    setShow3DViewer(true);
+                    toast.success('Генерируем ваш букет...');
+                  }}
+                >
+                  <Icon name="Sparkles" size={20} className="mr-2" />
+                  Создать 3D букет
+                </Button>
+                <Button size="lg" variant="outline" className="text-lg px-8 hover:scale-105 transition-all duration-300 hover:shadow-lg">
+                  Каталог
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -733,6 +797,57 @@ const Index = () => {
         <Icon name="MessageCircle" size={28} />
       </a>
       </div>
+
+      <Dialog open={showAuth} onOpenChange={setShowAuth}>
+        <DialogContent className="max-w-md">
+          <TelegramAuth 
+            onAuth={(userData) => {
+              setUser(userData);
+              setShowAuth(false);
+              toast.success(`Добро пожаловать, ${userData.first_name}!`);
+            }} 
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showProfile} onOpenChange={setShowProfile}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {user && (
+            <UserProfile 
+              user={user} 
+              onLogout={() => {
+                setUser(null);
+                setShowProfile(false);
+                toast.info('Вы вышли из аккаунта');
+              }} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={show3DViewer} onOpenChange={setShow3DViewer}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Ваш 3D букет</DialogTitle>
+            <DialogDescription>
+              {aiPrompt || 'Интерактивная 3D модель вашего букета'}
+            </DialogDescription>
+          </DialogHeader>
+          <BouquetViewer3D />
+          <div className="flex gap-3 mt-4">
+            <Button className="flex-1" onClick={() => {
+              toast.success('Букет добавлен в корзину!');
+              setShow3DViewer(false);
+            }}>
+              <Icon name="ShoppingCart" size={20} className="mr-2" />
+              Добавить в корзину (5,500₽)
+            </Button>
+            <Button variant="outline" onClick={() => setShow3DViewer(false)}>
+              Закрыть
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
