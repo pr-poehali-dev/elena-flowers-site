@@ -12,6 +12,7 @@ import ParallaxBackground from '@/components/ParallaxBackground';
 import BouquetViewer3D from '@/components/BouquetViewer3D';
 import TelegramAuth from '@/components/TelegramAuth';
 import UserProfile from '@/components/UserProfile';
+import PetalsAnimation from '@/components/PetalsAnimation';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface TelegramUser {
@@ -225,6 +226,7 @@ const Index = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ParallaxBackground />
+      <PetalsAnimation />
       <div className="relative z-10">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-pink-100">
         <div className="container mx-auto px-4 py-4">
