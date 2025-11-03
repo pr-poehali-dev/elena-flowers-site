@@ -1,0 +1,39 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": "",
+      "bodyMatcher": "exact"
+    },
+    {
+      "name": "POST with valid prompt",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "prompt": "red roses"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST without prompt",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "prompt": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "success": false,
+        "message": "Prompt is required"
+      },
+      "bodyMatcher": "exact"
+    }
+  ]
+}

@@ -42,16 +42,13 @@ const HeroSection = ({
 
     setIsGenerating(true);
     try {
-      const enhancedPrompt = `Beautiful bouquet of flowers, ${aiPrompt}, professional photography, high quality, detailed, elegant arrangement, natural lighting`;
-      
-      const response = await fetch('https://t2i.mcpcore.xyz/api/free/generate', {
+      const response = await fetch('https://functions.poehali.dev/62345321-c381-4968-9168-d4167260b402', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: enhancedPrompt,
-          model: 'flux'
+          prompt: aiPrompt
         })
       });
 
