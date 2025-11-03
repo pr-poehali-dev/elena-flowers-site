@@ -20,7 +20,6 @@ const Index = () => {
   const [user, setUser] = useState<TelegramUser | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [show3DViewer, setShow3DViewer] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
   const [deliveryForm, setDeliveryForm] = useState<DeliveryForm>({
     name: '',
@@ -105,13 +104,7 @@ const Index = () => {
     });
   };
 
-  const handle3DGeneration = () => {
-    if (!aiPrompt.trim()) {
-      toast.error('Опишите букет для 3D визуализации');
-      return;
-    }
-    setShow3DViewer(true);
-  };
+
 
   const calculateTotal = () => {
     return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -199,11 +192,8 @@ const Index = () => {
           aiBudget={aiBudget}
           setAiBudget={setAiBudget}
           generateBouquet={generateBouquet}
-          show3DViewer={show3DViewer}
-          setShow3DViewer={setShow3DViewer}
           aiPrompt={aiPrompt}
           setAiPrompt={setAiPrompt}
-          handle3DGeneration={handle3DGeneration}
         />
 
         <ProductsSection

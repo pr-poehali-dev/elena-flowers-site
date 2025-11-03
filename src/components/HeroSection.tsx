@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import BouquetViewer3D from '@/components/BouquetViewer3D';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 interface HeroSectionProps {
@@ -13,11 +12,8 @@ interface HeroSectionProps {
   aiBudget: string;
   setAiBudget: (value: string) => void;
   generateBouquet: () => void;
-  show3DViewer: boolean;
-  setShow3DViewer: (show: boolean) => void;
   aiPrompt: string;
   setAiPrompt: (value: string) => void;
-  handle3DGeneration: () => void;
 }
 
 interface GeneratedImage {
@@ -31,11 +27,8 @@ const HeroSection = ({
   aiBudget,
   setAiBudget,
   generateBouquet,
-  show3DViewer,
-  setShow3DViewer,
   aiPrompt,
   setAiPrompt,
-  handle3DGeneration,
 }: HeroSectionProps) => {
   const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -120,48 +113,24 @@ const HeroSection = ({
                 onChange={(e) => setAiPrompt(e.target.value)}
                 className="text-lg border-pink-200 focus:ring-pink-400 min-h-[100px]"
               />
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button 
-                  size="lg"
-                  onClick={generateBouquetImage}
-                  disabled={isGenerating}
-                  className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-8 py-6 text-lg"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
-                      Создаём букет...
-                    </>
-                  ) : (
-                    <>
-                      <Icon name="Sparkles" className="mr-2" size={20} />
-                      Создать букет (ИИ)
-                    </>
-                  )}
-                </Button>
-                <Dialog open={show3DViewer} onOpenChange={setShow3DViewer}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      size="lg"
-                      onClick={handle3DGeneration}
-                      variant="outline"
-                      className="flex-1 border-pink-300 text-pink-600 hover:bg-pink-50 px-8 py-6 text-lg"
-                    >
-                      <Icon name="Box" className="mr-2" size={20} />
-                      3D модель
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl h-[80vh]">
-                    <DialogHeader>
-                      <DialogTitle>3D визуализация букета</DialogTitle>
-                      <DialogDescription>
-                        {aiPrompt || 'Ваш букет'}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <BouquetViewer3D description={aiPrompt} />
-                  </DialogContent>
-                </Dialog>
-              </div>
+              <Button 
+                size="lg"
+                onClick={generateBouquetImage}
+                disabled={isGenerating}
+                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-8 py-6 text-lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
+                    Создаём букет...
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Sparkles" className="mr-2" size={20} />
+                    Создать букет с помощью ИИ
+                  </>
+                )}
+              </Button>
             </div>
 
             <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
