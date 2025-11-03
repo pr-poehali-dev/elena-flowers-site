@@ -1,9 +1,11 @@
-import { RefObject } from 'react';
+import { RefObject, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import BouquetViewer3D from '@/components/BouquetViewer3D';
+import { toast } from 'sonner';
 
 interface HeroSectionProps {
   scrollY: number;
@@ -18,6 +20,11 @@ interface HeroSectionProps {
   handle3DGeneration: () => void;
 }
 
+interface GeneratedImage {
+  url: string;
+  prompt: string;
+}
+
 const HeroSection = ({
   scrollY,
   heroRef,
@@ -30,6 +37,51 @@ const HeroSection = ({
   setAiPrompt,
   handle3DGeneration,
 }: HeroSectionProps) => {
+  const [generatedImage, setGeneratedImage] = useState<GeneratedImage | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showImageDialog, setShowImageDialog] = useState(false);
+
+  const generateBouquetImage = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error('Опишите букет для генерации изображения');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const enhancedPrompt = `Beautiful bouquet of flowers, ${aiPrompt}, professional photography, high quality, detailed, elegant arrangement, natural lighting`;
+      
+      const response = await fetch('https://t2i.mcpcore.xyz/api/free/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: enhancedPrompt,
+          model: 'flux'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка генерации изображения');
+      }
+
+      const data = await response.json();
+      
+      if (data.success && data.imageUrl) {
+        setGeneratedImage({ url: data.imageUrl, prompt: aiPrompt });
+        setShowImageDialog(true);
+        toast.success('Изображение букета создано! 🎨');
+      } else {
+        throw new Error(data.message || 'Не удалось создать изображение');
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Не удалось создать изображение. Попробуйте снова.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   return (
     <section 
       ref={heroRef}
@@ -61,36 +113,101 @@ const HeroSection = ({
             </h3>
             <p className="text-gray-600 mb-6">Опишите букет — увидите его в 3D!</p>
             
-            <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto mb-6">
-              <Input
-                type="text"
-                placeholder="Например: 11 красных роз с белыми лилиями"
+            <div className="flex flex-col gap-4 max-w-2xl mx-auto mb-6">
+              <Textarea
+                placeholder="Например: 11 красных роз с белыми лилиями и зеленью"
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                className="flex-1 text-lg py-6 border-pink-200 focus:ring-pink-400"
+                className="text-lg border-pink-200 focus:ring-pink-400 min-h-[100px]"
               />
-              <Dialog open={show3DViewer} onOpenChange={setShow3DViewer}>
-                <DialogTrigger asChild>
-                  <Button 
-                    size="lg"
-                    onClick={handle3DGeneration}
-                    className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-8 py-6 text-lg"
-                  >
-                    <Icon name="Box" className="mr-2" size={20} />
-                    Создать 3D букет
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl h-[80vh]">
-                  <DialogHeader>
-                    <DialogTitle>3D визуализация букета</DialogTitle>
-                    <DialogDescription>
-                      {aiPrompt || 'Ваш букет'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <BouquetViewer3D description={aiPrompt} />
-                </DialogContent>
-              </Dialog>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button 
+                  size="lg"
+                  onClick={generateBouquetImage}
+                  disabled={isGenerating}
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white px-8 py-6 text-lg"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
+                      Создаём букет...
+                    </>
+                  ) : (
+                    <>
+                      <Icon name="Sparkles" className="mr-2" size={20} />
+                      Создать букет (ИИ)
+                    </>
+                  )}
+                </Button>
+                <Dialog open={show3DViewer} onOpenChange={setShow3DViewer}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="lg"
+                      onClick={handle3DGeneration}
+                      variant="outline"
+                      className="flex-1 border-pink-300 text-pink-600 hover:bg-pink-50 px-8 py-6 text-lg"
+                    >
+                      <Icon name="Box" className="mr-2" size={20} />
+                      3D модель
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl h-[80vh]">
+                    <DialogHeader>
+                      <DialogTitle>3D визуализация букета</DialogTitle>
+                      <DialogDescription>
+                        {aiPrompt || 'Ваш букет'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <BouquetViewer3D description={aiPrompt} />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
+
+            <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+              <DialogContent className="max-w-3xl">
+                <DialogHeader>
+                  <DialogTitle>Ваш букет готов! 💐</DialogTitle>
+                  <DialogDescription>
+                    {generatedImage?.prompt}
+                  </DialogDescription>
+                </DialogHeader>
+                {generatedImage && (
+                  <div className="space-y-4">
+                    <img 
+                      src={generatedImage.url} 
+                      alt="Сгенерированный букет"
+                      className="w-full rounded-lg shadow-xl"
+                    />
+                    <div className="flex gap-3">
+                      <Button 
+                        className="flex-1 bg-pink-500 hover:bg-pink-600"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = generatedImage.url;
+                          link.download = 'bouquet.png';
+                          link.click();
+                          toast.success('Изображение скачано!');
+                        }}
+                      >
+                        <Icon name="Download" className="mr-2" size={18} />
+                        Скачать
+                      </Button>
+                      <Button 
+                        className="flex-1 bg-green-500 hover:bg-green-600"
+                        onClick={() => {
+                          setShowImageDialog(false);
+                          toast.success('Добавьте нужные товары в корзину!');
+                        }}
+                      >
+                        <Icon name="ShoppingCart" className="mr-2" size={18} />
+                        Заказать такой
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
 
             <div className="border-t border-pink-100 pt-6 mt-6">
               <h4 className="text-lg font-semibold text-gray-700 mb-4">Или укажите бюджет:</h4>
